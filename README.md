@@ -8,3 +8,4 @@
 ## Pre-Requisites:
 
 1. Install ansible. 
+2. Watch my YouTube Video
