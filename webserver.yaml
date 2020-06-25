@@ -1,58 +1,39 @@
 ---
-  - hosts: webservers
-    gather_facts: no
+- hosts: webservers
+  tasks:
 
-    tasks:
-    - name: set timezone to UTC
-      timezone:
-        name: UTC
+# Set the hostname based on the inventory file : servername
+# http://docs.ansible.com/ansible/latest/modules/hostname_module.html
+  - name: Set the hostname
+    hostname: 
+     name: "{{ servername }}"
 
-    - name: Set the hostname
-      hostname:
-        name: "{{ servername }}"
+# We need the Epel repository to install nginx
+  - name: Install epel release for nginx
+    yum: 
+     name: epel-release 
+     state: present
 
+# http://docs.ansible.com/ansible/latest/modules/yum_module.html
+  - name: Install a list of packages - Redhat
+    yum: name={{item}} state=present
+    with_items:
+       - epel-release
+       - nginx
+       - vim
 
-    - name: Disable SELinux
-      selinux:
-        state: disabled
+# http://docs.ansible.com/ansible/latest/modules/service_module.html
+  - name: Ensure nginx is set to start on boot
+    service: 
+     name: nginx 
+     state: started 
+     enabled: yes 
 
-    - name: Add base repository
-      yum_repository:
-        name: centos-base-via-ansible
-        description: Centos Base repo
-        baseurl: http://mirror.centos.org/centos/$releasever/os/$basearch/
-        gpgcheck: no
-
-
-    - name: Add Updates repository
-      yum_repository:
-        name: centos-updates-via-ansible
-        description: Centos Updates repo
-        baseurl: http://mirror.centos.org/centos/$releasever/updates/$basearch/
-        gpgcheck: no
-
-    - name: Add epel repository
-      yum_repository:
-        name: epel-via-ansible
-        description: Centos EPEL repo
-        baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-        gpgcheck: no
-
-    - name: Run yum update and disable all other repos
-      yum:
-        name: '*'
-        state: latest
-        disablerepo: "*"
-        enablerepo: "centos-base-via-ansible,centos-updates-via-ansible,epel-via-ansible"
-
-    - name: Install Nginx
-      package:
-        name: 'nginx'
-        state: present
-
-
-    - name: Start Nginx
-      service:
-        name: nginx
-        state: started
-        enabled: yes
+# http://docs.ansible.com/ansible/latest/modules/template_module.html
+  - name: Send a custom index.html to the server
+    template: 
+     src: files/index.j2
+     dest: /usr/share/nginx/html/index.html
+     owner: nginx
+     group: nginx
+     backup: yes

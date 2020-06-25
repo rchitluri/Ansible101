@@ -1,0 +1,4 @@
+[webservers]
+192.168.26.167 servername=web1.training.local
+192.168.26.170 servername=web2.training.local
+192.168.26.169 servername=web3.training.local

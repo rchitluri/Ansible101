@@ -1,0 +1,58 @@
+---
+  - hosts: webservers
+    gather_facts: no
+
+    tasks:
+    - name: set timezone to UTC
+      timezone:
+        name: UTC
+
+    - name: Set the hostname
+      hostname:
+        name: "{{ servername }}"
+
+
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+
+    - name: Add base repository
+      yum_repository:
+        name: centos-base-via-ansible
+        description: Centos Base repo
+        baseurl: http://mirror.centos.org/centos/$releasever/os/$basearch/
+        gpgcheck: no
+
+
+    - name: Add Updates repository
+      yum_repository:
+        name: centos-updates-via-ansible
+        description: Centos Updates repo
+        baseurl: http://mirror.centos.org/centos/$releasever/updates/$basearch/
+        gpgcheck: no
+
+    - name: Add epel repository
+      yum_repository:
+        name: epel-via-ansible
+        description: Centos EPEL repo
+        baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+        gpgcheck: no
+
+    - name: Run yum update and disable all other repos
+      yum:
+        name: '*'
+        state: latest
+        disablerepo: "*"
+        enablerepo: "centos-base-via-ansible,centos-updates-via-ansible,epel-via-ansible"
+
+    - name: Install Nginx
+      package:
+        name: 'nginx'
+        state: present
+
+
+    - name: Start Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
