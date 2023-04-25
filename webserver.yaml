@@ -1,5 +1,5 @@
 ---
-- hosts: webservers
+- hosts: all
   tasks:
 
 # Set the hostname based on the inventory file : servername
