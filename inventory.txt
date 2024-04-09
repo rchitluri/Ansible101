@@ -1,3 +1,4 @@
 [all]
-10.20.0.111 servername=web1.training.local
+3.99.127.226 servername=ec2.training.local
+
 
